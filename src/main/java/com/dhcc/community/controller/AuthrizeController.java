@@ -2,6 +2,8 @@ package com.dhcc.community.controller;
 
 import com.dhcc.community.dto.AccessTokenDTO;
 import com.dhcc.community.dto.GithubUser;
+import com.dhcc.community.mapper.UserMapper;
+import com.dhcc.community.model.User;
 import com.dhcc.community.provider.GitHubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 @Controller
 public class AuthrizeController {
@@ -24,6 +27,9 @@ public class AuthrizeController {
     @Value("${github.redirect.uri}")
     private String redirectUri;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @GetMapping("/callback")
     public String callback(@RequestParam(name = "code") String code,
                            @RequestParam(name = "state") String state,
@@ -35,10 +41,17 @@ public class AuthrizeController {
         accessTokenDTO.setRedirect_uri(redirectUri);
         accessTokenDTO.setState(state);
         String accessToken = gitHubProvider.getAccessToken(accessTokenDTO);
-        GithubUser user = gitHubProvider.getUser(accessToken);
-        if (user!=null) {
+        GithubUser githubUser = gitHubProvider.getUser(accessToken);
+        if (githubUser!=null) {
+            User user = new User();
+            user.setToken(UUID.randomUUID().toString());
+            user.setAccountId(String.valueOf(githubUser.getId()));
+            user.setName(githubUser.getName());
+            user.setGmtCreate(System.currentTimeMillis());
+            user.setGmtModified(user.getGmtCreate());
+            userMapper.insert(user);
             // 登录成功，保存用户信息到Session
-            request.getSession().setAttribute("user", user);
+            request.getSession().setAttribute("githubUser", githubUser);
             return "redirect:/";
         } else {
             // 登录失败
