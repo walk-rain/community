@@ -20,6 +20,8 @@
 
 [VP](https://www.visual-paradigm.com)
 
+[Lombok](https://projectlombok.org/setup/maven)
+
 ##脚本
 
 ```sql
