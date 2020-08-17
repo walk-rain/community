@@ -9,3 +9,6 @@ body {
     float: right;
     margin-bottom: 15px;
 }
+.btn-div {
+    padding-right: 0;
+}
