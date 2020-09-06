@@ -49,7 +49,7 @@
         <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
             <h2><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>发布</h2>
             <hr/>
-            <div class="media" th:each="question : ${questions}">
+            <div class="media" th:each="question : ${pagination.getQuestionDTOList()}">
                 <div class="media-left">
                     <a href="#">
                         <img class="media-object img-rounded"
@@ -62,6 +62,37 @@
                     <span class="text-desc"><span th:text="${question.getCommentCount()}"></span> 个回复 • <span th:text="${question.getViewCount()}"></span> 个浏览 • <span th:text="${#dates.format(question.getGmtCreate(),'dd MMM yyyy')}"></span></span>
                 </div>
             </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li>
+                        <a href="/?page=1" aria-label="First" th:if="${pagination.isShowFirst()}">
+                            <span aria-hidden="true">&lt;&lt;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/(page=${pagination.getCurrentPage()-1})}"
+                           th:if="${pagination.getCurrentPage()>1}" aria-label="Previous">
+                            <span aria-hidden="true">&lt;</span>
+                        </a>
+                    </li>
+                    <li th:each="page : ${pagination.getPages()}"
+                        th:class="${(pagination.getCurrentPage()==page)?'active':''}">
+                        <a th:text="${page}" th:href="@{/(page=${page})}"></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/(page=${pagination.getCurrentPage()+1})}" aria-label="Next"
+                           th:if="${pagination.getCurrentPage()<pagination.getTotalPage()}">
+                            <span aria-hidden="true">&gt;</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/(page=${pagination.getTotalPage()})}" aria-label="Last"
+                           th:if="${pagination.isShowLast()}">
+                            <span aria-hidden="true">&gt;&gt;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
             <h3>热门话题</h3>

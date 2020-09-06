@@ -1,5 +1,6 @@
 package com.dhcc.community.service;
 
+import com.dhcc.community.dto.PaginationDTO;
 import com.dhcc.community.dto.QuestionDTO;
 import com.dhcc.community.mapper.QuestionMapper;
 import com.dhcc.community.mapper.UserMapper;
@@ -21,8 +22,10 @@ public class QuestionService {
     @Autowired
     private QuestionMapper questionMapper;
 
-    public List<QuestionDTO> list() {
-        List<Question> questionList = questionMapper.list();
+    public PaginationDTO list(Integer page, Integer size) {
+        Integer offset = size * (page - 1);
+        PaginationDTO paginationDTO = new PaginationDTO();
+        List<Question> questionList = questionMapper.list(offset, size);
         List<QuestionDTO> questionDTOList = new ArrayList<>();
         for (Question question : questionList) {
             QuestionDTO questionDTO = new QuestionDTO();
@@ -31,6 +34,9 @@ public class QuestionService {
             questionDTO.setUser(user);
             questionDTOList.add(questionDTO);
         }
-        return questionDTOList;
+        paginationDTO.setQuestionDTOList(questionDTOList);
+        Integer totalCount = questionMapper.count();
+        paginationDTO.setPagination(page,size,totalCount);
+        return paginationDTO;
     }
 }
